@@ -1,0 +1,1 @@
+:root { font-family: Inter, system-ui, sans-serif; color: #e5edf8; background: #0c1424; } body { margin: 0; } main { max-width: 760px; margin: 15vh auto; padding: 2rem; border: 1px solid #2a3a55; border-radius: 12px; background: #121e33; } h1 { margin: 0; } .status { color: #7ee787; font-weight: 600; }

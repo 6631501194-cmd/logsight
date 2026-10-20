@@ -12,6 +12,17 @@ class Settings(BaseSettings):
     bootstrap_admin_email: str
     bootstrap_admin_password: str
     bootstrap_ingestion_key: str
+    demo_a_admin_email: str
+    demo_a_admin_password: str
+    demo_a_viewer_email: str
+    demo_a_viewer_password: str
+    demo_b_admin_email: str
+    demo_b_admin_password: str
+    demo_b_viewer_email: str
+    demo_b_viewer_password: str
+    access_token_expire_minutes: int = 60
+    retention_days: int = 7
+    retention_check_interval_seconds: int = 86400
     backend_cors_origins: str = "http://localhost:5173"
 
     @property

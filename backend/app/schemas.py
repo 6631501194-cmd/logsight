@@ -1,12 +1,12 @@
 from datetime import datetime
-from typing import Any
+from typing import Annotated, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 
 class IngestRequest(BaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="allow")
-    timestamp: datetime | None = Field(default=None, validation_alias="@timestamp")
+    timestamp: Annotated[datetime | None, Field(validation_alias="@timestamp")] = None
     source: str = "api"
     event_type: str = "unknown"
     event_subtype: str | None = None
@@ -29,7 +29,7 @@ class IngestRequest(BaseModel):
     rule_name: str | None = None
     rule_id: str | None = None
     cloud: dict[str, Any] = Field(default_factory=dict)
-    tags: list[str] = Field(default_factory=list, validation_alias="_tags")
+    tags: Annotated[list[str], Field(validation_alias="_tags")] = Field(default_factory=list)
     raw: dict[str, Any] | None = None
 
 
@@ -38,3 +38,34 @@ class IngestResponse(BaseModel):
     tenant: str
     source: str
     timestamp: datetime
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    role: str
+    tenant: str
+
+
+class LogResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    timestamp: datetime
+    source: str
+    event_type: str
+    severity: int | None
+    src_ip: str | None
+    user_name: str | None
+    raw: dict[str, Any]
+
+
+class PageResponse(BaseModel):
+    items: list[LogResponse]
+    total: int
+    page: int
+    page_size: int

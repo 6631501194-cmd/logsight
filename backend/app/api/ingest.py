@@ -8,6 +8,7 @@ from app.db.models import IngestionKey, Log, Tenant
 from app.db.session import get_db
 from app.schemas import IngestRequest, IngestResponse
 from app.services.normalization import normalize_log
+from app.services.alerts import evaluate_failed_login_rules
 
 router = APIRouter(tags=["ingestion"])
 
@@ -32,6 +33,8 @@ def ingest_log(payload: IngestRequest, tenant: Tenant = Depends(authenticated_te
     # The authenticated key, not an untrusted request field, defines the owning tenant.
     log = Log(tenant_id=tenant.id, **normalized)
     db.add(log)
+    db.flush()
+    evaluate_failed_login_rules(db, log)
     db.commit()
     db.refresh(log)
     return IngestResponse(id=str(log.id), tenant=tenant.slug, source=log.source, timestamp=log.timestamp)

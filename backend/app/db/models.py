@@ -96,4 +96,5 @@ class Alert(Base):
     severity: Mapped[int] = mapped_column(Integer, default=5)
     status: Mapped[str] = mapped_column(String(30), default="open")
     details: Mapped[dict] = mapped_column(JSONB, default=dict)
+    dedupe_key: Mapped[str | None] = mapped_column(String(128), unique=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

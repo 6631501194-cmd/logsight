@@ -1,0 +1,1 @@
+export function Severity({ value }: { value: number | null | undefined }) { const level = value ?? 0; const label = level >= 8 ? "Critical" : level >= 5 ? "High" : level >= 3 ? "Medium" : "Low"; return <span className={`severity severity-${label.toLowerCase()}`}>{label}{value !== null && value !== undefined ? ` · ${value}` : ""}</span>; }

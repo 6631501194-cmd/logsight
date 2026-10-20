@@ -13,14 +13,19 @@ def key_hash(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
+def ensure_ingestion_key(db: Session, tenant: Tenant, name: str, secret: str) -> None:
+    """Idempotently register a tenant-bound key while storing only its hash."""
+    if db.scalar(select(IngestionKey).where(IngestionKey.key_hash == key_hash(secret))) is None:
+        db.add(IngestionKey(tenant_id=tenant.id, name=name, key_hash=key_hash(secret)))
+
+
 def bootstrap_demo_data(db: Session) -> None:
     tenant = db.scalar(select(Tenant).where(Tenant.slug == settings.bootstrap_tenant_slug))
     if tenant is None:
         tenant = Tenant(slug=settings.bootstrap_tenant_slug, name=settings.bootstrap_tenant_name)
         db.add(tenant)
         db.flush()
-    if db.scalar(select(IngestionKey).where(IngestionKey.key_hash == key_hash(settings.bootstrap_ingestion_key))) is None:
-        db.add(IngestionKey(tenant_id=tenant.id, name="bootstrap", key_hash=key_hash(settings.bootstrap_ingestion_key)))
+    ensure_ingestion_key(db, tenant, "bootstrap", settings.bootstrap_ingestion_key)
     password_hash = PasswordHash.recommended()
     bootstrap_user = db.scalar(select(User).where(User.email == settings.bootstrap_admin_email))
     if bootstrap_user is None:
@@ -46,6 +51,8 @@ def bootstrap_demo_data(db: Session) -> None:
         for email, password, role in credentials:
             if db.scalar(select(User).where(User.email == email)) is None:
                 db.add(User(tenant_id=demo_tenant.id, email=email, password_hash=password_hash.hash(password), role=role))
+        tenant_key = settings.demo_a_ingestion_key if slug == "demoA" else settings.demo_b_ingestion_key
+        ensure_ingestion_key(db, demo_tenant, "sample-data-generator", tenant_key)
         if db.scalar(select(AlertRule).where(AlertRule.tenant_id == demo_tenant.id, AlertRule.rule_type == "failed_login_by_ip")) is None:
             db.add(AlertRule(tenant_id=demo_tenant.id, name="Repeated failed logins", rule_type="failed_login_by_ip", threshold=5, window_minutes=5))
     db.commit()

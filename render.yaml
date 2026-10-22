@@ -1,0 +1,55 @@
+services:
+  - type: web
+    name: logsight-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    # Render Free does not support pre-deploy commands, so migrate before Uvicorn starts.
+    startCommand: sh -c 'alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port $PORT'
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: BACKEND_CORS_ORIGINS
+        sync: false
+      - key: BOOTSTRAP_TENANT_SLUG
+        sync: false
+      - key: BOOTSTRAP_TENANT_NAME
+        sync: false
+      - key: BOOTSTRAP_ADMIN_EMAIL
+        sync: false
+      - key: BOOTSTRAP_ADMIN_PASSWORD
+        sync: false
+      - key: BOOTSTRAP_INGESTION_KEY
+        sync: false
+      - key: DEMO_A_ADMIN_EMAIL
+        sync: false
+      - key: DEMO_A_ADMIN_PASSWORD
+        sync: false
+      - key: DEMO_A_VIEWER_EMAIL
+        sync: false
+      - key: DEMO_A_VIEWER_PASSWORD
+        sync: false
+      - key: DEMO_A_INGESTION_KEY
+        sync: false
+      - key: DEMO_B_ADMIN_EMAIL
+        sync: false
+      - key: DEMO_B_ADMIN_PASSWORD
+        sync: false
+      - key: DEMO_B_VIEWER_EMAIL
+        sync: false
+      - key: DEMO_B_VIEWER_PASSWORD
+        sync: false
+      - key: DEMO_B_INGESTION_KEY
+        sync: false
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "60"
+      - key: RETENTION_DAYS
+        value: "7"
+      - key: RETENTION_CHECK_INTERVAL_SECONDS
+        value: "86400"

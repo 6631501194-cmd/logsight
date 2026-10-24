@@ -20,4 +20,5 @@ export const api = {
   statistics: () => request<DashboardStatistics>("/api/dashboard/statistics"),
   logs: (params: URLSearchParams) => request<LogPage>(`/api/logs?${params.toString()}`),
   alerts: (severity?: string) => request<Alert[]>(`/api/alerts${severity ? `?severity=${encodeURIComponent(severity)}` : ""}`),
+  runRetention: () => request<{ deleted_logs: number }>("/api/admin/retention/run", { method: "POST" }),
 };
